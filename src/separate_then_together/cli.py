@@ -9,6 +9,7 @@ from separate_then_together.agent import LLMAgent
 from separate_then_together.config import Config
 from separate_then_together.persona import Persona, PersonaSelector
 from separate_then_together.session import SessionEngine
+from separate_then_together.report import ReportGenerator
 from separate_then_together.strategies import (
     SeparateStrategy,
     CollaborativeStrategy,
@@ -81,6 +82,12 @@ Examples:
         "--output",
         type=Path,
         help="Output file path (JSON or Markdown)"
+    )
+    
+    parser.add_argument(
+        "--generate-report",
+        action="store_true",
+        help="Generate a comprehensive design document after the session"
     )
     
     parser.add_argument(
@@ -212,6 +219,33 @@ def main() -> int:
             else:
                 # Default to JSON
                 session.export_to_json(args.output.with_suffix(".json"))
+        
+        # Generate comprehensive report if requested
+        if args.generate_report:
+            print(f"\nGeneratin comprehensive design document...")
+            # Reuse agent1 as the reporter
+            generator = ReportGenerator(agent1, config)
+            topic = args.topic
+            history = session.full_history
+            
+            report_content = generator.generate_report(topic, history)
+            
+            output_path = Path("DESIGN_DOCUMENT.md")
+            if args.output:
+                 # If user specified output dir, verify and use it
+                 # If output is file (e.g. output/results.json), use parent dir
+                 if args.output.suffix:
+                     output_dir = args.output.parent
+                 else:
+                     output_dir = args.output
+                     
+                 output_dir.mkdir(parents=True, exist_ok=True)
+                 output_path = output_dir / "DESIGN_DOCUMENT.md"
+            
+            with open(output_path, "w") as f:
+                f.write(report_content)
+                
+            print(f"\n✓ Comprehensive plan saved to: {output_path}")
         
         return 0
     

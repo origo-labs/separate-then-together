@@ -11,8 +11,13 @@ This system implements the empirically-validated **Separate-Then-Together** coll
 
 This two-phase approach produces the highest **Novelty** and **Depth** scores compared to purely separate or purely collaborative strategies.
 
+## See It In Action
+
+Read our detailed [Case Study](CASE_STUDY.md) demonstrating how the system evolved a secure financial API architecture from scratch, culminating in a comprehensive technical specification.
+
 ## Key Features
 
+- 📄 **Automated Reporting**: Generate professional Design Documents from chat history
 - 🎭 **Persona Selection**: Automatic selection of dissimilar personas using embedding-based cosine similarity
 - 🔄 **Multiple Strategies**: Separate, Collaborative, and Separate-Then-Together modes
 - 🤖 **OpenAI-Compatible**: Works with OpenAI, Ollama, OpenRouter, and other compatible APIs
@@ -81,10 +86,11 @@ separate-then-together \
   --separate-turns 10 \
   --collab-turns 20
 
-# Export results
+# Export results and generate report
 separate-then-together \
   --topic "Your task" \
-  --output results.json
+  --output results.json \
+  --generate-report
 
 # Quiet mode (no progress output)
 separate-then-together --topic "Your task" --quiet
@@ -277,18 +283,34 @@ This implementation is based on research into persona-based multi-agent collabor
 - **Epistemic isolation** in the divergence phase is critical for diversity
 - **Cross-domain synthesis** in the convergence phase improves implementation-readiness
 
-See `docs/SUMMARY.md` and `docs/conceptual.md` for detailed research background.
+See `docs/SUMMARY.md` for detailed research background.
 
 ## License
 
-[Add your license here]
+MIT
 
 ## Citation
 
 If you use this framework in your research, please cite:
 
 ```bibtex
-[Add citation information]
+@article{Straub2025Persona,
+  author = {Nate Straub and Saara Khan and Kat Jay and Brian Cabral and Oskar Linde},
+  title = {Persona-based Multi-Agent Collaboration for Brainstorming},
+  journal = {Technical Report, Reality Labs},
+  year = {2025},
+  note = {Nate Straub and Saara Khan are co-first authors; This work was supported by funding from Meta Platforms [2].}
+}
+```
+
+```bibtex
+@misc{key,
+  author       = {origo Labs},
+  title        = {Separate-Then-Together},
+  howpublished = {\url{https://github.com/mrorigo/separate-then-together}},
+  year         = {2025},
+  month        = {Dec},
+}
 ```
 
 ## Contributing
