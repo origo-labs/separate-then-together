@@ -28,10 +28,15 @@ class Config:
     embedding_model: str = field(
         default_factory=lambda: os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
     )
-    separate_turns: int = 5
-    collab_turns: int = 10
+    # Multi-agent settings
+    separate_turns: int = 10
+    collab_turns: int = 20
+    summary_threshold: int = 5  # Number of turns before summarizing
+    
+    # Prompt settings
     temperature: float = 0.7
     max_tokens: int = 2000
+    verbose_prompts: bool = False  # If True, log full prompts to console
     
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""

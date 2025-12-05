@@ -88,6 +88,9 @@ separate-then-together \
 
 # Quiet mode (no progress output)
 separate-then-together --topic "Your task" --quiet
+
+# Debug mode (log all prompts)
+separate-then-together --topic "Your task" --verbose-prompts
 ```
 
 ### Python API

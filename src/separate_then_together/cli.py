@@ -71,6 +71,13 @@ Examples:
     )
     
     parser.add_argument(
+        "--summary-threshold",
+        type=int,
+        default=5,
+        help="Number of turns before summarizing history (default: 5)"
+    )
+    
+    parser.add_argument(
         "--output",
         type=Path,
         help="Output file path (JSON or Markdown)"
@@ -92,6 +99,12 @@ Examples:
         "--base-url",
         type=str,
         help="Override OPENAI_BASE_URL environment variable"
+    )
+    
+    parser.add_argument(
+        "--verbose-prompts",
+        action="store_true",
+        help="Log full prompts sent to LLM (for debugging)"
     )
     
     return parser
@@ -156,6 +169,8 @@ def main() -> int:
         
         config.separate_turns = args.separate_turns
         config.collab_turns = args.collab_turns
+        config.summary_threshold = args.summary_threshold
+        config.verbose_prompts = args.verbose_prompts
         
         # Get personas and select dissimilar pair
         personas = get_default_personas()

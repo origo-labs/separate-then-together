@@ -3,7 +3,7 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from separate_then_together.agent import LLMAgent
 from separate_then_together.config import Config
@@ -89,7 +89,9 @@ class SessionEngine:
             idea = current_agent.generate_idea(
                 self.topic, 
                 filtered_history, 
-                self.strategy.get_phase_name()
+                self.strategy.get_phase_name(),
+                current_turn=self.strategy.current_turn,
+                total_turns=self.strategy.separate_turns + self.strategy.collab_turns
             )
             
             # Record the action
@@ -131,7 +133,7 @@ class SessionEngine:
         
         return results
     
-    def export_to_json(self, filepath: Path) -> None:
+    def export_to_json(self, filepath: Union[str, Path]) -> None:
         """Export session results to JSON file.
         
         Args:
@@ -158,13 +160,23 @@ class SessionEngine:
             }
         }
         
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        with open(filepath, "w") as f:
-            json.dump(data, f, indent=2)
         
-        print(f"\n✓ Results exported to: {filepath}")
+        try:
+            path_obj = Path(filepath)
+            path_obj.parent.mkdir(parents=True, exist_ok=True)
+            with open(path_obj, "w") as f:
+                json.dump(data, f, indent=2)
+            
+            print(f"\n✓ Results exported to: {path_obj}")
+            
+        except Exception as e:
+            print(f"\n❌ Error exporting to {filepath}: {e}")
+            print("\n⚠️  Dumping results to console to prevent data loss:")
+            print(json.dumps(data, indent=2))
+            # Re-raise to alert the caller, but data is saved
+            raise
     
-    def export_to_markdown(self, filepath: Path) -> None:
+    def export_to_markdown(self, filepath: Union[str, Path]) -> None:
         """Export session results to Markdown file.
         
         Args:
@@ -194,11 +206,19 @@ class SessionEngine:
                 content = entry.get("content", "")
                 lines.append(f"**Turn {turn} - {role}**\n\n{content}\n")
         
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        with open(filepath, "w") as f:
-            f.write("\n".join(lines))
-        
-        print(f"✓ Results exported to: {filepath}")
+        try:
+            path_obj = Path(filepath)
+            path_obj.parent.mkdir(parents=True, exist_ok=True)
+            with open(path_obj, "w") as f:
+                f.write("\n".join(lines))
+            
+            print(f"\n✓ Results exported to: {path_obj}")
+            
+        except Exception as e:
+            print(f"\n❌ Error exporting to {filepath}: {e}")
+            print("\n⚠️  Dumping results to console to prevent data loss:")
+            print("\n".join(lines))
+            raise
     
     def _print_session_header(self) -> None:
         """Print session start information."""
