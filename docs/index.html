@@ -1,0 +1,862 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Separate-Then-Together: Persona-based Multi-Agent Collaboration</title>
+    <meta name="description" content="Separate-Then-Together is a research-backed multi-agent collaboration system designed for superior planning and brainstorming, combining independent ideation with structured synthesis.">
+
+    <!-- Favicon Placeholder -->
+    <link rel="icon" href="path/to/favicon.ico" type="image/x-icon">
+
+    <!-- Highlight.js CSS for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+
+    <style>
+        /* Design Guide - Colors */
+        :root {
+            --origo-dark-text: #3A3A3A;
+            --origo-primary: #F26C2E;
+            --origo-red-accent: #DA4631;
+            --origo-brown-accent: #9C542D;
+            --origo-light-bg: #EFEFEF;
+            --white: #FFFFFF;
+        }
+
+        /* Design Guide - Typography & Base Styles */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; /* Tailwind's font-sans equivalent */
+            color: var(--origo-dark-text);
+            line-height: 1.6;
+            background-color: var(--white);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600; /* semi-bold for headings */
+            color: var(--origo-dark-text);
+            line-height: 1.2;
+            margin-bottom: 0.5em;
+        }
+
+        h1 { font-size: 2.8rem; font-weight: 700; } /* bold for primary heading */
+        h2 { font-size: 2.2rem; margin-top: 1.5em; }
+        h3 { font-size: 1.8rem; margin-top: 1.2em; }
+        p { margin-bottom: 1em; }
+
+        a {
+            color: var(--origo-primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: var(--origo-red-accent);
+        }
+
+        ul, ol {
+            margin-bottom: 1em;
+            padding-left: 20px;
+        }
+
+        /* General Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--origo-dark-text);
+            color: var(--white);
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo-placeholder {
+            width: 150px;
+            height: 40px;
+            background-color: var(--origo-primary); /* Reflects 'Labs' part of wordmark */
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700; /* Bold */
+            font-size: 1.2rem;
+            border-radius: 5px;
+            padding: 0 10px;
+        }
+        .logo-placeholder span:first-child {
+            font-weight: 500; /* Semi-bold for 'origo' */
+            text-transform: lowercase;
+        }
+        .logo-placeholder span:last-child {
+            text-transform: uppercase;
+        }
+        nav {
+            margin-left: auto; /* Push nav to the right */
+        }
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        nav a:hover {
+            color: var(--origo-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background-color: var(--origo-light-bg);
+            text-align: center;
+            padding: 120px 0;
+        }
+        .hero .icon-hero-placeholder {
+            background-color: var(--origo-red-accent); /* Accent color for brain icon */
+            border-radius: 15px; /* Rounded corners for icon */
+        }
+        .hero h1 {
+            color: var(--origo-dark-text);
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+            color: #555;
+        }
+        .cta-button {
+            background-color: var(--origo-primary);
+            color: var(--white);
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: inline-flex; /* For icon alignment */
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .cta-button:hover {
+            background-color: var(--origo-red-accent);
+            transform: translateY(-2px);
+        }
+        .cta-button::before {
+            content: "🚀";
+            font-size: 1.2em;
+        }
+
+        /* Overview Section - Simple content section */
+        .overview {
+            background-color: var(--white);
+        }
+        .overview h2 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .overview p {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Features Section */
+        .features {
+            background-color: var(--white);
+            padding-bottom: 40px; /* Reduced padding for visual flow */
+        }
+        .features h2 {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        .feature-item {
+            background-color: var(--origo-light-bg);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .icon-placeholder {
+            width: 60px;
+            height: 60px;
+            background-color: var(--origo-primary);
+            margin: 0 auto 20px auto;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--white);
+        }
+        .feature-item h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--origo-dark-text);
+        }
+        .feature-item p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        /* How it Works */
+        .how-it-works {
+            background-color: var(--origo-light-bg);
+            text-align: center;
+            padding-top: 40px; /* Reduced padding for visual flow */
+        }
+        .how-it-works h2 {
+            margin-bottom: 40px;
+        }
+        .strategy-explanation {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .strategy-phase {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            text-align: left;
+            border-left: 5px solid var(--origo-red-accent); /* Accent border for visual distinction */
+        }
+        .strategy-phase:nth-child(2) {
+             border-left-color: var(--origo-primary); /* Different accent for contrast */
+        }
+        .strategy-phase h3 {
+            color: var(--origo-red-accent); /* Matching accent for phase 1 heading */
+            margin-top: 0;
+        }
+        .strategy-phase:nth-child(2) h3 {
+            color: var(--origo-primary); /* Matching accent for phase 2 heading */
+        }
+        .flow-diagram-placeholder {
+            width: 100%;
+            height: 300px;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: italic;
+            color: #666;
+            margin-top: 40px;
+            border-radius: 10px;
+            border: 1px dashed #bbb;
+        }
+
+        /* Case Study */
+        .case-study {
+            background-color: var(--white);
+        }
+        .case-study h2 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .case-study-intro-p { /* Added for specific paragraph alignment */
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 40px auto;
+            font-size: 1.1rem;
+        }
+        .case-study-content {
+            background-color: var(--origo-light-bg);
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+        .case-study-content h3 {
+            color: var(--origo-dark-text);
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+        }
+        .case-study-summary {
+            max-height: 250px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+            transition: max-height 0.5s ease-out;
+        }
+        .case-study-summary::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(to top, var(--origo-light-bg), transparent);
+            transition: opacity 0.3s ease-in-out;
+        }
+        .case-study-summary.expanded {
+            max-height: 2000px; /* Arbitrarily large to show full content */
+        }
+        .case-study-summary.expanded::after {
+            opacity: 0;
+            display: none;
+        }
+        .read-full-button {
+            display: inline-block;
+            background-color: var(--origo-primary);
+            color: var(--white);
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        .read-full-button:hover {
+            background-color: var(--origo-red-accent);
+        }
+
+
+        /* Usage / Quick Start */
+        .usage {
+            background-color: var(--origo-dark-text);
+            color: var(--white);
+        }
+        .usage h2, .usage h3 {
+            color: var(--white);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .usage h3 {
+            text-align: left;
+            margin-top: 60px;
+            margin-bottom: 20px;
+            max-width: 900px; /* Align with code blocks */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .code-block {
+            background-color: #282c34; /* Darker background for code */
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            position: relative;
+            margin-bottom: 20px;
+            max-width: 900px; /* Constrain code block width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap; /* Wrap long lines */
+            word-break: break-all;
+        }
+        .code-block code {
+            font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+        }
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--origo-primary);
+            color: var(--white);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .copy-button:hover {
+            background-color: var(--origo-red-accent);
+        }
+        .copy-button:active {
+            transform: translateY(1px);
+        }
+
+        /* Research Background */
+        .research {
+            background-color: var(--origo-light-bg);
+        }
+        .research h2 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .research-points {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Enforce 2 columns for wider screens */
+            gap: 30px;
+            max-width: 900px; /* Constrain the grid width */
+            margin: 0 auto; /* Center the grid */
+        }
+        .research-item {
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            border-left: 4px solid var(--origo-brown-accent); /* Tertiary accent */
+        }
+        .research-item h3 {
+            font-size: 1.2rem;
+            margin-top: 0;
+            color: var(--origo-dark-text);
+        }
+        .research-item p {
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        /* Call to Action Final */
+        .cta-final {
+            background-color: var(--origo-primary);
+            color: var(--white);
+            text-align: center;
+        }
+        .cta-final h2 {
+            color: var(--white);
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        .cta-final p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+        }
+        .cta-final .cta-button {
+            background-color: var(--origo-dark-text);
+        }
+        .cta-final .cta-button:hover {
+            background-color: #222; /* Slightly lighter dark text for hover */
+        }
+        .cta-final .cta-button::before {
+            content: "⭐"; /* Star icon for final CTA */
+            font-size: 1.2em;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--origo-dark-text);
+            color: #aaa;
+            padding: 40px 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        footer .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        footer p {
+            margin: 0;
+        }
+        footer .footer-links {
+            margin-top: 10px;
+        }
+        footer .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.3s ease;
+        }
+        footer .footer-links a:hover {
+            color: var(--origo-primary);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            header .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            nav {
+                margin-left: 0;
+                width: 100%;
+                text-align: center;
+            }
+            nav a {
+                margin: 0 10px;
+            }
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1.1rem; }
+            .cta-final h2 { font-size: 2rem; }
+            .cta-final p { font-size: 1rem; }
+
+            .research-points {
+                grid-template-columns: repeat(1, 1fr); /* Stack on smaller screens */
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.8rem; }
+            section { padding: 60px 0; }
+            .hero { padding: 80px 0; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .strategy-explanation { flex-direction: column; }
+            footer .container { flex-direction: column; gap: 15px; }
+            .footer-links { margin-top: 0; }
+            .footer-links a { margin: 0 10px; }
+            .code-block pre { white-space: pre-wrap; word-break: break-word; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.6rem; }
+            .hero { padding: 60px 0; }
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .logo-placeholder { width: 120px; height: 35px; font-size: 1rem; }
+            nav a { margin-left: 8px; margin-right: 8px; font-size: 0.9em;}
+            .cta-button { padding: 12px 25px; font-size: 1rem; }
+            .case-study-content { padding: 20px; }
+            .research-item { border-left-width: 2px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#overview">Overview</a>
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#case-study">Case Study</a>
+                <a href="#quick-start">Quick Start</a>
+                <a href="#research">Research</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="hero">
+            <div class="container">
+                <h1>Separate-Then-Together</h1>
+                <p>A professional, research-oriented multi-agent collaboration system based on the <strong>Separate-Then-Together</strong> framework for persona-based planning and brainstorming.</p>
+                <a href="https://github.com/origo-labs/separate-then-together" target="_blank" class="cta-button">View on GitHub</a>
+            </div>
+        </section>
+
+        <section id="overview" class="overview">
+            <div class="container">
+                <h2>A New Paradigm for Agentic Planning</h2>
+                <p>The "Persona-based Multi-Agent Collaboration for Brainstorming" paper provides a foundational framework for engineering multi-agent systems that leverage principles of human-centered design to produce higher-quality, more diverse, and deeper solutions, particularly relevant for complex planning tasks like refactoring.</p>
+                <p>This system implements the empirically-validated <strong>Separate-Then-Together</strong> collaboration strategy, which combines:
+                    <ul>
+                        <li><strong>Separate Phase (Divergence)</strong>: Agents work in epistemic isolation, seeing only their own contributions, to maximize conceptual diversity.</li>
+                        <li><strong>Collaborative Phase (Convergence)</strong>: Agents share full conversation history to synthesize, critique, and integrate ideas.</li>
+                    </ul>
+                This two-phase approach produces the highest <strong>Novelty</strong> and <strong>Depth</strong> scores compared to purely separate or purely collaborative strategies.</p>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2>Key Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="icon-placeholder">📄</div> <!-- Icon Placeholder -->
+                        <h3>Automated Reporting</h3>
+                        <p>Generate professional Design Documents and comprehensive technical specifications directly from rich session history.</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon-placeholder">🎭</div> <!-- Icon Placeholder -->
+                        <h3>Persona Selection</h3>
+                        <p>Automatic selection of highly dissimilar, domain-specific agent personas using embedding-based cosine similarity to prevent groupthink.</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon-placeholder">🔄</div> <!-- Icon Placeholder -->
+                        <h3>Multiple Strategies</h3>
+                        <p>Choose between Separate (divergence), Collaborative (convergence), or the optimal Separate-Then-Together hybrid modes for flexible collaboration.</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon-placeholder">🤖</div> <!-- Icon Placeholder -->
+                        <h3>OpenAI-Compatible</h3>
+                        <p>Works seamlessly with OpenAI, Ollama, OpenRouter, and other compatible LLM APIs, offering maximum flexibility in model choice.</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon-placeholder">📊</div> <!-- Icon Placeholder -->
+                        <h3>Rich Output</h3>
+                        <p>Export conversation history and structured results to easily consumable JSON or human-readable Markdown formats.</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon-placeholder">🧪</div> <!-- Icon Placeholder -->
+                        <h3>Research-Ready</h3>
+                        <p>Modular architecture designed for experimentation, allowing easy testing of different persona compositions and collaboration dynamics.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="how-it-works">
+            <div class="container">
+                <h2>How Separate-Then-Together Works</h2>
+                <p>This empirically-validated strategy combines two powerful phases to maximize both exploration and synthesis in agent collaboration, leading to superior outcomes.</p>
+                <div class="strategy-explanation">
+                    <div class="strategy-phase">
+                        <h3>Phase 1: Separate (Divergence)</h3>
+                        <p>Agents work in **epistemic isolation**, meaning history filtering includes **only the current agent’s prior actions**, preventing mutual awareness. This strategy yields the highest initial semantic differentiation and cluster purity, encouraging unique, deep implementations without early influence from partners.</p>
+                    </div>
+                    <div class="strategy-phase">
+                        <h3>Phase 2: Collaborative (Convergence)</h3>
+                        <p>After a set number of independent turns, agents transition to operating with **unfiltered conversation history**. They can now reference, critique, and build upon partner contributions, allowing for synthesis and cross-domain integration. This phase helps resolve conflicts and consolidate diverse ideas into a coherent, actionable plan.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="case-study" class="case-study">
+            <div class="container">
+                <h2>Case Study: Designing a Secure Financial API</h2>
+                <p class="case-study-intro-p">Discover how Separate-Then-Together led to a groundbreaking, balanced solution balancing scalability with rigorous security.</p>
+                <div class="case-study-content">
+                    <h3>Secure Financial API Architecture: A Separate-Then-Together Success Story</h3>
+                    <div class="case-study-summary">
+                        <p>This case study demonstrates the effectiveness of the **Separate-Then-Together** multi-agent collaboration strategy. By initiating two specialized agents—a **Software Architect** and a **Security Engineer**—in isolation before bringing them together, the system produced a highly sophisticated, evolved architecture that balances scalability with rigorous security.</p>
+                        <h4>The Challenge</h4>
+                        <p><strong>Topic:</strong> Design a secure, scalable REST API for a financial services platform.</p>
+                        <p><strong>Goals:</strong> Handle high transaction volumes (Scalability), Ensure data integrity and regulatory compliance (Security), Manage distributed transactions without data loss.</p>
+                        <h4>The Process</h4>
+                        <h5>Phase 1: Separation (Turns 1-6)</h5>
+                        <p>The agents worked independently, unaware of each other.</p>
+                        <ul>
+                            <li><strong>The Architect</strong> focused on: Microservices using the Saga Pattern, Event-Driven Architecture with Kafka, Schema Management strategies.</li>
+                            <li><strong>The Security Engineer</strong> focused on: OAuth 2.0 and mTLS for authentication, Data Loss Prevention (DLP) and dynamic redaction, Policy Enforcement Modules.</li>
+                        </ul>
+                        <h5>Phase 2: Collaboration (Turns 7-17)</h5>
+                        <p>The agents were brought together. Their independent ideas collided and evolved.</p>
+                        <ul>
+                            <li><strong>Synthesis:</strong> The Architect integrated the Security Engineer's "Policy Module" into the event stream.</li>
+                            <li><strong>Conflict Resolution:</strong> They identified a core tension between <em>speed</em> (Architect) and <em>compliance</em> (Security).</li>
+                            <li><strong>Innovation:</strong> They co-created a novel abstraction: the **Distributed Conflict Resolution Engine (DCRE)**. This component didn't exist in either initial plan but emerged from the need to reconcile schema changes with security policies in real-time.</li>
+                        </ul>
+                        <h4>The Result: A Comprehensive Implementation Plan</h4>
+                        <p>The final output was not just a chat log, but a structured **Integrated Architecture Design Document** generated automatically by the system.</p>
+                        <h5>Key Architectural Decisions</h5>
+                        <ol>
+                            <li><strong>Distributed Conflict Resolution Engine (DCRE)</strong>: Orchestrates conflicts during Saga lifecycle, consulting Schema Manager and Policy Enforcement Module.</li>
+                            <li><strong>Dynamic Policy Enforcement</strong>: Assigns a **Risk Score** to transaction events, triggering stricter DCRE validation for high-risk events.</li>
+                            <li><strong>Self-Healing Data Redaction</strong>: DLP engine detects sensitive data, DCRE applies redaction rules, preventing leaks even during failures.</li>
+                            <li><strong>Human-in-the-Loop Governance (DGB)</strong>: DCRE escalates unresolvable conflicts for human review, addressing regulatory nuances.</li>
+                        </ol>
+                        <p>The "Separate-Then-Together" strategy proved superior to standard "chat" collaboration by avoiding groupthink, forcing innovation, and yielding high coherence in the final specification.</p>
+                    </div>
+                    <a href="https://github.com/origo-labs/separate-then-together/blob/main/CASE_STUDY.md" target="_blank" class="read-full-button">Read Full Case Study on GitHub</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="quick-start" class="usage">
+            <div class="container">
+                <h2>Quick Start</h2>
+                <p style="text-align: center;">Get up and running with Separate-Then-Together in minutes.</p>
+
+                <h3>Installation</h3>
+                <div class="code-block">
+<pre><code class="language-bash"># Clone the repository
+git clone https://github.com/origo-labs/separate-then-together
+cd separate-then-together
+
+# Install with uv (recommended)
+uv sync
+
+# Or with pip
+pip install -e .</code></pre>
+                    <button class="copy-button">Copy</button>
+                </div>
+
+                <h3>Using Ollama (Local Models)</h3>
+                <div class="code-block">
+<pre><code class="language-bash"># Start Ollama and pull a model
+ollama pull gemma3:4b
+
+# Set environment variables
+export OPENAI_API_KEY=ollama
+export OPENAI_BASE_URL=http://localhost:11434/v1
+export OPENAI_MODEL=gemma3:4b
+
+# Run the CLI
+separate-then-together --topic "Plan a microservices migration"</code></pre>
+                    <button class="copy-button">Copy</button>
+                </div>
+
+                <h3>Using OpenAI</h3>
+                <div class="code-block">
+<pre><code class="language-bash"># Set your OpenAI API key
+export OPENAI_API_KEY=sk-...
+export OPENAI_MODEL=gpt-4o
+
+# Run the CLI
+separate-then-together --topic "Design a new authentication system"</code></pre>
+                    <button class="copy-button">Copy</button>
+                </div>
+
+                <h3>Python API Example</h3>
+                <div class="code-block">
+<pre><code class="language-python">from separate_then_together import (
+    Config,
+    LLMAgent,
+    Persona,
+    PersonaSelector,
+    SessionEngine,
+    SeparateTogetherStrategy,
+)
+
+# 1. Create configuration
+config = Config.from_env()
+
+# 2. Define personas
+personas = [
+    Persona(
+        name="System Architect",
+        system_prompt="You are a system architect focused on..."
+    ),
+    Persona(
+        name="Security Engineer",
+        system_prompt="You are a security engineer focused on..."
+    ),
+]
+
+# 3. Select dissimilar pair
+selector = PersonaSelector(personas, config.embedding_model)
+persona1, persona2 = selector.select_dissimilar_pair()
+
+# 4. Create agents
+agent1 = LLMAgent(persona1, config)
+agent2 = LLMAgent(persona2, config)
+
+# 5. Create strategy
+strategy = SeparateTogetherStrategy(
+    separate_turns=10,
+    collab_turns=20
+)
+
+# 6. Run session
+session = SessionEngine(
+    agent1, agent2,
+    topic="Your planning task",
+    strategy=strategy,
+    config=config
+)
+results = session.run()
+
+# 7. Export results
+session.export_to_json("results.json")
+session.export_to_markdown("results.md")</code></pre>
+                    <button class="copy-button">Copy</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="research" class="research">
+            <div class="container">
+                <h2>Research Background</h2>
+                <p style="text-align: center;">Built on robust academic findings, ensuring impactful outcomes for your agentic workflows.</p>
+                <div class="research-points">
+                    <div class="research-item">
+                        <h3>Persona Diversity for Novelty</h3>
+                        <p><strong>Dissimilar persona pairs</strong>, quantified by low cosine similarity of their system prompt embeddings, consistently generate ideas with significantly higher **Novelty** and **Depth** scores. This promotes semantic variance and conceptual reach.</p>
+                    </div>
+                    <div class="research-item">
+                        <h3>Separate-Then-Together: Optimal Hybrid</h3>
+                        <p>The **Separate-Then-Together** strategy is empirically validated as superior, producing the highest scores for both Novelty and Depth by effectively balancing initial exploration with subsequent synthesis.</p>
+                    </div>
+                    <div class="research-item">
+                        <h3>Epistemic Isolation</h3>
+                        <p>Strict enforcement of **epistemic isolation** during the initial *Separate* phase—limiting context to only an agent's own prior actions—is critical for maximizing the semantic diversity of initial ideation.</p>
+                    </div>
+                    <div class="research-item">
+                        <h3>Cross-Domain Synthesis</h3>
+                        <p>The framework's effectiveness is rooted in enabling **cross-domain synthesis** during the Collaborative phase. This allows agents with different knowledge bases to integrate their distinct insights, leading to more elaborated and implementation-ready solutions.</p>
+                    </div>
+                </div>
+                <p style="text-align: center; margin-top: 40px;">For a detailed understanding of the research, refer to the <a href="https://github.com/origo-labs/separate-then-together/blob/main/docs/SUMMARY.md" target="_blank" style="color: var(--origo-primary); text-decoration: none; font-weight: 500;">Research Summary</a> on GitHub.</p>
+            </div>
+        </section>
+
+        <section class="cta-final">
+            <div class="container">
+                <h2>Ready to Elevate Your Agentic Workflows?</h2>
+                <p>Explore the repository and start building more innovative and robust solutions with Separate-Then-Together.</p>
+                <a href="https://github.com/origo-labs/separate-then-together" target="_blank" class="cta-button">Get Started on GitHub</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 origoLabs. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="https://github.com/origo-labs/separate-then-together/blob/main/LICENSE" target="_blank">License</a>
+                <a href="https://github.com/origo-labs/separate-then-together/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a>
+                <a href="https://github.com/origo-labs/separate-then-together/issues" target="_blank">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Highlight.js JS for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // Initialize highlight.js on all code blocks
+        hljs.highlightAll();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Copy to clipboard functionality for code blocks
+            const copyButtons = document.querySelectorAll('.copy-button');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Find the <pre><code> element preceding this button
+                    const codeBlock = button.previousElementSibling.querySelector('code');
+                    if (codeBlock) {
+                        const textToCopy = codeBlock.innerText;
+                        navigator.clipboard.writeText(textToCopy).then(() => {
+                            const originalText = button.textContent;
+                            button.textContent = 'Copied!';
+                            setTimeout(() => {
+                                button.textContent = originalText;
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Failed to copy text: ', err);
+                            alert('Failed to copy text. Please copy manually.');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
