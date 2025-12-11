@@ -632,7 +632,8 @@ def main() -> None:
         "Outline the high-level plan, risks, and resource requirements for refactoring "
         "our legacy PHP monolith into a modern, serverless microservices architecture "
         "using Go and AWS Lambda. Consider migration strategy, data consistency, "
-        "and zero-downtime deployment."
+        "and zero-downtime deployment. Keep it simple and extensible, using industry "
+        "best practices and standards."
     )
     
     print("\n" + "=" * 70)

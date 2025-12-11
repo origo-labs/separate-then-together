@@ -157,7 +157,8 @@ class SessionEngine:
                     agent: len([e for e in self.full_history if e["role"] == agent])
                     for agent in self.agent_names
                 },
-            }
+            },
+            "summary_cache": self._collect_summary_caches()
         }
         
         
@@ -241,6 +242,17 @@ class SessionEngine:
         print(f"PHASE TRANSITION → {new_phase.upper()}")
         print("=" * 70)
     
+    def _collect_summary_caches(self) -> Dict[str, str]:
+        """Collect and merge summary caches from all agents.
+        
+        Returns:
+            Merged dictionary of summary caches
+        """
+        merged_cache = {}
+        for agent in self.agents.values():
+            merged_cache.update(agent.get_summary_cache())
+        return merged_cache
+
     def _print_session_footer(self) -> None:
         """Print session completion information."""
         duration = (

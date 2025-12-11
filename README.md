@@ -17,11 +17,12 @@ Read our detailed [Case Study](CASE_STUDY.md) demonstrating how the system evolv
 
 ## Key Features
 
-- 📄 **Automated Reporting**: Generate professional Design Documents from chat history
+- 📄 **Automated Reporting**: Generate professional Design Documents with Tables of Contents and session metadata
+- 🚀 **Smart Caching**: Persists LLM-generated summaries to JSON for ultra-fast report regeneration
 - 🎭 **Persona Selection**: Automatic selection of dissimilar personas using embedding-based cosine similarity
 - 🔄 **Multiple Strategies**: Separate, Collaborative, and Separate-Then-Together modes
 - 🤖 **OpenAI-Compatible**: Works with OpenAI, Ollama, OpenRouter, and other compatible APIs
-- 📊 **Rich Output**: Export results to JSON or Markdown
+- 📊 **Rich Output**: Export results to JSON and/or Markdown
 - 🧪 **Research-Ready**: Modular architecture for experimentation
 - ✅ **Type-Safe**: Full type hints and Pydantic validation
 
@@ -162,7 +163,7 @@ The system uses environment variables for configuration:
 |----------|-------------|---------|
 | `OPENAI_API_KEY` | API key for OpenAI-compatible endpoint | `ollama` |
 | `OPENAI_BASE_URL` | Base URL for API endpoint | `http://localhost:11434/v1` |
-| `OPENAI_MODEL` | Model name | `gemma2:2b` |
+| `OPENAI_MODEL` | Model name | `gemma3:4b` |
 | `EMBEDDING_MODEL` | Sentence transformer model for persona similarity | `all-MiniLM-L6-v2` |
 
 ## Examples

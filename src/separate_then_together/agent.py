@@ -20,12 +20,13 @@ class LLMAgent:
     - Includes progress indicators for better planning
     """
     
-    def __init__(self, persona: Persona, config: Config):
+    def __init__(self, persona: Persona, config: Config, initial_summary_cache: Optional[Dict[str, str]] = None):
         """Initialize the LLM agent.
         
         Args:
             persona: Persona defining the agent's expertise and role
             config: Configuration for API access and model parameters
+            initial_summary_cache: Optional dictionary of pre-computed summaries
         """
         self.persona = persona
         self.config = config
@@ -38,7 +39,15 @@ class LLMAgent:
         
         # Cache for LLM-generated summaries to avoid regenerating
         # Key: "turns_{start}-{end}", Value: summary text
-        self._summary_cache: Dict[str, str] = {}
+        self._summary_cache: Dict[str, str] = initial_summary_cache.copy() if initial_summary_cache else {}
+    
+    def get_summary_cache(self) -> Dict[str, str]:
+        """Get the current summary cache.
+        
+        Returns:
+            Dictionary of cached summaries
+        """
+        return self._summary_cache.copy()
     
     @property
     def name(self) -> str:

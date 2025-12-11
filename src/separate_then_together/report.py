@@ -21,12 +21,13 @@ class ReportGenerator:
         self.agent = agent
         self.config = config
         
-    def generate_report(self, topic: str, history: List[Dict[str, Any]]) -> str:
+    def generate_report(self, topic: str, history: List[Dict[str, Any]], metadata: Optional[Dict[str, Any]] = None) -> str:
         """Generate a full comprehensive report.
         
         Args:
             topic: The main topic/goal of the planning session
             history: Full conversation history
+            metadata: Optional session metadata (e.g. personas, config settings)
             
         Returns:
             Markdown formatted report
@@ -49,14 +50,55 @@ class ReportGenerator:
         print(f"[ReportGenerator] Document Type: {doc_title}")
         print(f"[ReportGenerator] Generated {len(outline)} sections.")
         
-        # 3. Generate Sections
-        print("[ReportGenerator] Step 2/3: Synthesizing section content...")
-        full_report = f"# {doc_title}\n\n**Topic:** {topic}\n\n"
+        # 3. Add Table of Contents
+        print("[ReportGenerator] Step 2/3: Generating Table of Contents...")
+        toc_lines = ["\n## Table of Contents"]
+        for i, section_title in enumerate(outline):
+            # Create a simple anchor link (lowercase, spaces to hyphens, remove special chars)
+            anchor = section_title.lower().replace(" ", "-")
+            # Remove non-alphanumeric chars (except hyphens) for better compatibility
+            anchor = "".join(c for c in anchor if c.isalnum() or c == "-")
+            toc_lines.append(f"{i+1}. [{section_title}](#{anchor})")
+        
+        full_report = f"# {doc_title}\n\n**Topic:** {topic}\n\n" + "\n".join(toc_lines) + "\n\n"
+        
+        # 4. Generate Sections
+        print("[ReportGenerator] Step 3/3: Synthesizing section content...")
         
         for i, section_title in enumerate(outline):
             print(f"  - Writing section {i+1}/{len(outline)}: {section_title}")
             section_content = self._generate_section(section_title, doc_title, topic, context_str)
+            
+            # Post-process: Remove the section title if the LLM included it despite instructions
+            # Check for lines starting with #, ##, ### that match the section title closely
+            lines = section_content.split('\n')
+            if lines and (section_title.lower() in lines[0].lower() or lines[0].strip().strip("#").strip().lower() == section_title.lower()):
+                section_content = "\n".join(lines[1:]).strip()
+            
+            # Ensure we use the clean section title for the anchor
             full_report += f"## {section_title}\n\n{section_content}\n\n"
+            
+        # 5. Add Metadata/Appendix
+        if metadata:
+            print("[ReportGenerator] Step 4/3: Appending session metadata...")
+            full_report += "## Appendix: Generation Metadata\n\n"
+            
+            if "agents" in metadata:
+                full_report += "**Participating Personas:**\n"
+                for agent in metadata["agents"]:
+                    full_report += f"- {agent}\n"
+                full_report += "\n"
+                
+            if "config" in metadata:
+                full_report += "**Configuration:**\n"
+                # Filter out sensitive keys if needed, for now just dump it nicely
+                for key, value in metadata["config"].items():
+                    if "key" not in key.lower(): # Basic filter for API keys
+                         full_report += f"- **{key}:** {value}\n"
+                full_report += "\n"
+        
+            if "session_start" in metadata:
+                full_report += f"**Session Start:** {metadata['session_start']}\n"
             
         return full_report
 
@@ -109,6 +151,7 @@ class ReportGenerator:
             f"- Resolve any initial conflicts by presenting the *final* evolved solution.\n"
             f"- Use technical language and standard Markdown formatting.\n"
             f"- Do NOT introduce yourself. Just write the document content.\n"
+            f"- Do NOT include the section title as a heading. Start directly with the content.\n"
         )
         
         try:
